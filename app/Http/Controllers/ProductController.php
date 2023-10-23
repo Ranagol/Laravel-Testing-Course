@@ -38,19 +38,19 @@ class ProductController extends Controller
     {
         $productData = $request->validated();
 
-        if ($request->youtube_id) {
-            $productData['youtube_thumbnail'] = $youTubeService->getThumbnailByID($request->youtube_id);
-        }
+        // if ($request->youtube_id) {
+        //     $productData['youtube_thumbnail'] = $youTubeService->getThumbnailByID($request->youtube_id);
+        // }
 
-        if ($request->hasFile('photo')) {
-            $filename = $request->file('photo')->getClientOriginalName();
-            $request->file('photo')->storeAs('products', $filename);
-            $productData['photo'] = $filename;
-        }
+        // if ($request->hasFile('photo')) {
+        //     $filename = $request->file('photo')->getClientOriginalName();
+        //     $request->file('photo')->storeAs('products', $filename);
+        //     $productData['photo'] = $filename;
+        // }
 
         $product = Product::create($productData);
 
-        NewProductNotifyJob::dispatch($product);
+        // NewProductNotifyJob::dispatch($product);
 
         return redirect()->route('products.index');
     }
