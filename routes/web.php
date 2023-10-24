@@ -17,7 +17,7 @@ use App\Http\Controllers\ProductController;
 Route::redirect('/', 'login');
 Route::get('download', [ProductController::class, 'download']);
 
-// Route::middleware('auth')->group(function() {
+Route::middleware('auth')->group(function() {
     Route::get('products', [ProductController::class, 'index'])->name('products.index');
 
     // Route::middleware('is_admin')->group(function() {
@@ -32,6 +32,6 @@ Route::get('download', [ProductController::class, 'download']);
         Route::delete('products/{product}', [ProductController::class, 'destroy'])
             ->name('products.destroy');
     // });
-// });
+});
 
 require __DIR__.'/auth.php';

@@ -2,22 +2,23 @@
 
 namespace Tests\Feature;
 
-use App\Jobs\NewProductNotifyJob;
+use Tests\TestCase;
+use App\Models\User;
+use App\Models\Product;
 use App\Jobs\ProductPublishJob;
 use App\Mail\NewProductCreated;
-use App\Models\Product;
-use App\Notifications\NewProductCreatedNotification;
 use App\Services\ProductService;
 use App\Services\YouTubeService;
-use Brick\Math\Exception\NumberFormatException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
+use App\Jobs\NewProductNotifyJob;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Notification;
+use Brick\Math\Exception\NumberFormatException;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Notifications\NewProductCreatedNotification;
 
 class ProductsTest extends TestCase
 {
@@ -30,10 +31,12 @@ class ProductsTest extends TestCase
 
     public function test_load_products_page()
     {
+        //We create a fake user with factory, for logging in.
+        $user = User::factory()->create();
         /**
          * http://127.0.0.1:8000/products
          */
-        $response = $this->get('/products');//sending a get request...
+        $response = $this->actingAs($user)->get('/products');//sending a get request...
         $response->assertStatus(200);
 
         /**
@@ -46,7 +49,13 @@ class ProductsTest extends TestCase
 
     public function test_homepage_contains_empty_table()
     {
-        $response = $this->actingAs($this->user)->get('/products');
+        //We create a fake user with factory, for logging in.
+        $user = User::factory()->create();
+
+        /**
+         * The route is protected with auth middleware. User must be logged in.
+         */
+        $response = $this->actingAs($user)->get('/products');
 
         $response->assertOk();
         $response->assertSee(__('No products found'));
@@ -54,6 +63,9 @@ class ProductsTest extends TestCase
 
     public function test_homepage_contains_non_empty_table()
     {
+        //We create a fake user with factory, for logging in.
+        $user = User::factory()->create();
+
         //ARRANGE: set up data
         $product = Product::create([
             'name' => 'Product 1',
@@ -61,7 +73,7 @@ class ProductsTest extends TestCase
         ]);
 
         //ACT: simulate/trigger the thing that you want to test
-        $response = $this->actingAs($this->user)->get('/products');
+        $response = $this->actingAs($user)->get('/products');
 
         //ASSERT
         $response->assertOk();
@@ -90,6 +102,33 @@ class ProductsTest extends TestCase
         );
     }
 
+    public function test_paginated_products_table_doesnt_contain_11th_record()
+    {
+        /**
+         * We create 11 products in the fake db
+         */
+        $products = Product::factory(11)->create();
+        $lastProduct = $products->last();//the 11th product.
+
+        //We create a fake user with factory, for logging in.
+        $user = User::factory()->create();
+
+        /**
+         * If we go to the /products page, 10 products should be displayed. The 11th product,
+         * although exists, should not be on the page. This is what we check.
+         */
+        $response = $this->actingAs($user)->get('/products');
+
+        $response->assertOk();
+
+        $response->assertViewHas(
+            'products',
+            function ($collection) use ($lastProduct) {
+                return !$collection->contains($lastProduct);
+            }
+        );
+    }
+
 //     public function test_homepage_contains_table_product()
 //     {
 //         $product = Product::create([
@@ -111,18 +150,7 @@ class ProductsTest extends TestCase
 //         $response->assertSeeInOrder([$product1->name, $product2->name]);
 //     }
 
-//     public function test_paginated_products_table_doesnt_contain_11th_record()
-//     {
-//         $products = Product::factory(11)->create();
-//         $lastProduct = $products->last();
 
-//         $response = $this->actingAs($this->user)->get('/products');
-
-//         $response->assertOk();
-//         $response->assertViewHas('products', function ($collection) use ($lastProduct) {
-//             return !$collection->contains($lastProduct);
-//         });
-//     }
 
 //     public function test_admin_can_see_products_create_button()
 //     {
