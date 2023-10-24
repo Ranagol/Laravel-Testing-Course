@@ -21,6 +21,11 @@ use Tests\TestCase;
 
 class ProductsTest extends TestCase
 {
+    /**
+     * this will refresh the database, refresh the migrations every time the tests are run. Which
+     * is totally cool, when working with test db. But. There is a horrific danger of fully deleting
+     * data on production!!!! This is one of the reason why we never do tests on production db!
+     */
     use RefreshDatabase;
 
     public function test_load_products_page()
@@ -49,19 +54,40 @@ class ProductsTest extends TestCase
 
     public function test_homepage_contains_non_empty_table()
     {
+        //ARRANGE: set up data
         $product = Product::create([
             'name' => 'Product 1',
             'price' => 123
         ]);
 
+        //ACT: simulate/trigger the thing that you want to test
         $response = $this->actingAs($this->user)->get('/products');
 
+        //ASSERT
         $response->assertOk();
         $response->assertDontSee(__('No products found'));//No products found should not appear on page
-        $response->assertSee('Product 1');
-        // $response->assertViewHas('products', function ($collection) use ($product) {
-        //     return $collection->contains($product);
-        // });
+        $response->assertSee('Product 1');//not specific enough, could produce false positive results
+        $response->assertViewHas(
+
+            /**
+             * in the controller, the key passed to view is 'products'. Example:
+             * return view('products.index', compact('products'));
+             */
+            'products',
+
+            /**
+             *  So, the $collection here is $products, sent by the controller to the view. We want
+             * to check, if the $collection contains the $product, defined a couple of lines above.
+             * To do this, we must use a callback function.
+             */
+            function ($collection) use ($product) {
+                /**
+                 * https://laravel.com/docs/10.x/collections#method-contains
+                 * contains() will returns true, if the collection contains the given item
+                 */
+                return $collection->contains($product);
+            }
+        );
     }
 
 //     public function test_homepage_contains_table_product()
