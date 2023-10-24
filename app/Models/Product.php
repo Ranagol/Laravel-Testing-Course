@@ -15,6 +15,9 @@ class Product extends Model
 
     protected $fillable = ['name', 'price', 'published_at', 'photo', 'youtube_id', 'youtube_thumbnail'];
 
+    /**
+     * This will simply add another column to the product object
+     */
     public function getPriceEurAttribute()
     {
         try {
