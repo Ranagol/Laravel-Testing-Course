@@ -324,16 +324,39 @@ class ProductsTest extends TestCase
         $response->assertViewHas('product', $product);
     }
 
+    /**
+     * Now, this is the testing of the product update validation.
+     */
     public function test_product_update_validation_error_redirects_back_to_form()
     {
+        //We create a product in the fake db.
         $product = Product::factory()->create();
 
-        $response = $this->actingAs($this->admin)->put('products/' . $product->id, [
-            'name' => '',
-            'price' => ''
-        ]);
+        /**
+         * Notice: here we use PUT method for updating. But we are trying deliberatly to update
+         * to wrong values. Because, name and price are mandatory and requered (defined so in the
+         * validation rules). And here we try to send no new value for name and price. Just an
+         * empty string. Which should trigger a validation error.
+         */
+        $response = $this->actingAs($this->admin)->put(
+            'products/' . $product->id,
+            [
+                'name' => '',
+                'price' => ''
+            ]
+        );
 
+        /**
+         * We expect here a redirect after a successfull update. Because, after a successfull update
+         * this will happen in the controller:
+         * return redirect()->route('products.index');
+         */
         $response->assertStatus(302);
+
+        /**
+         * Assert that the response has validation errors for the given keys.
+         * https://laravel.com/docs/10.x/http-tests#assert-invalid
+         */
         $response->assertInvalid(['name', 'price']);
     }
 
