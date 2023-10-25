@@ -360,19 +360,46 @@ class ProductsTest extends TestCase
         $response->assertInvalid(['name', 'price']);
     }
 
-//     public function test_product_delete_successful()
-//     {
-//         $product = Product::factory()->create();
+    public function test_product_delete_successful()
+    {
+        //Creating a product for deletion
+        $product = Product::factory()->create();
 
-//         $response = $this->actingAs($this->admin)->delete('products/' . $product->id);
+        //Sending a delete request as admin
+        $response = $this->actingAs($this->admin)->delete('products/' . $product->id);
 
-//         $response->assertStatus(302);
-//         $response->assertRedirect('products');
+        /**
+         * After a successfull deletion, we expect a redirect to the products page.
+         * 302 is status for redirection.
+         */
+        $response->assertStatus(302);
 
-//         $this->assertDatabaseMissing('products', $product->toArray());
-//         $this->assertModelMissing($product);
-//         $this->assertDatabaseCount('products', 0);
-//     }
+        /**
+         * Assert that the response is a redirect to the given URI:
+         * https://laravel.com/docs/10.x/http-tests#assert-redirect
+         */
+        $response->assertRedirect('products');
+
+        /**
+         * Assert that a table in the database does not contain records matching the given key /
+         * value query constraints:
+         * https://laravel.com/docs/10.x/database-testing#assert-database-missing
+         */
+        $this->assertDatabaseMissing('products', $product->toArray());
+
+        /**
+         * Assert that a given model does not exist in the database:
+         * https://laravel.com/docs/10.x/database-testing#assert-model-missing
+         */
+        $this->assertModelMissing($product);
+
+        /**
+         * Assert that a table in the database contains the given number of records: 0.
+         * 0, because for every test we reset our db. Because this is a fake db for testing.
+         * https://laravel.com/docs/10.x/database-testing#assert-database-count
+         */
+        $this->assertDatabaseCount('products', 0);
+    }
 
 //     public function test_product_create_photo_upload_successful()
 //     {
