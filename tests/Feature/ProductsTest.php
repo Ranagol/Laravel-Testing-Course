@@ -224,32 +224,57 @@ class ProductsTest extends TestCase
     }
 
 
+    /**
+     * Here we test if a created product actually appeared in the fake db.
+     */
+    public function test_create_product_successful()
+    {
+        //Creating a product.
+        $product = [
+            'name' => 'Product 123',
+            'price' => 1234
+        ];
 
+        /**
+         * This is for things that happen in the browser. This does not cover what happens ind the
+         * db.
+         */
+        $response = $this->followingRedirects()
+                            ->actingAs($this->admin)
+                            ->post('/products', $product);
 
+        $response->assertStatus(200);
 
+        /**
+         * https://laravel.com/docs/10.x/http-tests#assert-see-text
+         *
+         */
+        $response->assertSeeText($product['name']);
 
+        /**
+         * We check here if the created product is in the fake db.
+         * Assert that a table in the database contains records matching the given key / value
+         * query constraints
+         *
+         * https://laravel.com/docs/10.x/database-testing#assert-database-has
+         */
+        $this->assertDatabaseHas(
+            'products', //this is the table name
+            [
+                'name' => 'Product 123',//this is the product that we just created
+                'price' => 123400
+            ]
+        );
 
-
-//     public function test_create_product_successful()
-//     {
-//         $product = [
-//             'name' => 'Product 123',
-//             'price' => 1234
-//         ];
-//         $response = $this->followingRedirects()->actingAs($this->admin)->post('/products', $product);
-
-//         $response->assertStatus(200);
-//         $response->assertSeeText($product['name']);
-
-//         $this->assertDatabaseHas('products', [
-//             'name' => 'Product 123',
-//             'price' => 123400
-//         ]);
-
-//         $lastProduct = Product::latest()->first();
-//         $this->assertEquals($product['name'], $lastProduct->name);
-//         $this->assertEquals($product['price'] * 100, $lastProduct->price);
-//     }
+        /**
+         * A couple of lines above we created a new product, and inserted it into db. That means
+         * that this new product is the last one, if all is ok. This is what we want to check here.
+         * So here we check if the last products name and price are correct.
+         */
+        $lastProduct = Product::latest()->first();
+        $this->assertEquals($product['name'], $lastProduct->name);
+        $this->assertEquals($product['price'] * 100, $lastProduct->price);
+    }
 
 //     public function test_product_edit_contains_correct_values()
 //     {

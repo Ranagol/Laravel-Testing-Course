@@ -33,6 +33,8 @@ class ProductController extends Controller
      *
      * @param  \App\Http\Requests\StoreProductRequest  $request
      * @return \Illuminate\Http\Response
+     *
+     * StoreProductRequest: this is where the validation function is defined with validation rules.
      */
     public function store(StoreProductRequest $request, YouTubeService $youTubeService)
     {

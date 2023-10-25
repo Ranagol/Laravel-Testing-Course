@@ -10,6 +10,8 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="overflow-hidden overflow-x-auto p-6 bg-white border-b border-gray-200">
                     <div class="min-w-full align-middle">
+
+                        {{-- THE FORM --}}
                         <form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data">
                             @csrf
 
