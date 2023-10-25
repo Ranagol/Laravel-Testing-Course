@@ -29,14 +29,25 @@ class ProductsTest extends TestCase
      */
     use RefreshDatabase;
 
+    public User $user;
+
+    /**
+     * It seems to me that this is almost like a constructor in OOP.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();//Here we call the parent's setUp() first, which is mandatory
+
+        //We create a fake user with factory, for logging in.
+        $this->user = User::factory()->create();
+    }
+
     public function test_load_products_page()
     {
-        //We create a fake user with factory, for logging in.
-        $user = User::factory()->create();
         /**
          * http://127.0.0.1:8000/products
          */
-        $response = $this->actingAs($user)->get('/products');//sending a get request...
+        $response = $this->actingAs($this->user)->get('/products');//sending a get request...
         $response->assertStatus(200);
 
         /**
@@ -49,13 +60,11 @@ class ProductsTest extends TestCase
 
     public function test_homepage_contains_empty_table()
     {
-        //We create a fake user with factory, for logging in.
-        $user = User::factory()->create();
 
         /**
          * The route is protected with auth middleware. User must be logged in.
          */
-        $response = $this->actingAs($user)->get('/products');
+        $response = $this->actingAs($this->user)->get('/products');
 
         $response->assertOk();
         $response->assertSee(__('No products found'));
@@ -63,9 +72,6 @@ class ProductsTest extends TestCase
 
     public function test_homepage_contains_non_empty_table()
     {
-        //We create a fake user with factory, for logging in.
-        $user = User::factory()->create();
-
         //ARRANGE: set up data
         $product = Product::create([
             'name' => 'Product 1',
@@ -73,7 +79,7 @@ class ProductsTest extends TestCase
         ]);
 
         //ACT: simulate/trigger the thing that you want to test
-        $response = $this->actingAs($user)->get('/products');
+        $response = $this->actingAs($this->user)->get('/products');
 
         //ASSERT
         $response->assertOk();
@@ -110,14 +116,11 @@ class ProductsTest extends TestCase
         $products = Product::factory(11)->create();
         $lastProduct = $products->last();//the 11th product.
 
-        //We create a fake user with factory, for logging in.
-        $user = User::factory()->create();
-
         /**
          * If we go to the /products page, 10 products should be displayed. The 11th product,
          * although exists, should not be on the page. This is what we check.
          */
-        $response = $this->actingAs($user)->get('/products');
+        $response = $this->actingAs($this->user)->get('/products');
 
         $response->assertOk();
 
