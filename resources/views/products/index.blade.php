@@ -10,10 +10,12 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="overflow-hidden overflow-x-auto p-6 bg-white border-b border-gray-200">
                     <div class="min-w-full align-middle">
-                        {{-- @if (auth()->user()->is_admin) --}}
+                        {{-- We want an admin to see this button, and a non admin to not to see
+                            this button. --}}
+                        @if (auth()->user()->is_admin)
                             <a href="{{ route('products.create') }}" class="mb-4 inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
                                 Add new product</a>
-                        {{-- @endif --}}
+                        @endif
 
                         <table class="min-w-full divide-y divide-gray-200 border">
                             <thead>
@@ -46,7 +48,7 @@
                                     <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900">
                                         {{ $product->price_eur }}
                                     </td>
-                                    {{-- @if (auth()->user()->is_admin) --}}
+                                    @if (auth()->user()->is_admin)
                                         <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-900">
                                             <a href="{{ route('products.edit', $product) }}" class="mb-4 inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
                                                 Edit</a>
@@ -56,7 +58,7 @@
                                                 <x-button onclick="return confirm('Are you sure?')" class="bg-red-600 text-white">Delete</x-button>
                                             </form>
                                         </td>
-                                    {{-- @endif --}}
+                                    @endif
                                 </tr>
                             @empty
                                 <tr class="bg-white">

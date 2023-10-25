@@ -30,6 +30,7 @@ class ProductsTest extends TestCase
     use RefreshDatabase;
 
     public User $user;
+    public User $admin;
 
     /**
      * It seems to me that this is almost like a constructor in OOP.
@@ -39,7 +40,19 @@ class ProductsTest extends TestCase
         parent::setUp();//Here we call the parent's setUp() first, which is mandatory
 
         //We create a fake user with factory, for logging in.
-        $this->user = User::factory()->create();
+        $this->user = User::factory()->create(
+            [
+                'is_admin' => false
+            ]
+        );
+
+        //We create an admin
+        $this->admin = User::factory()->create(
+            [
+                'is_admin' => true
+            ]
+        );
+
     }
 
     public function test_load_products_page()
@@ -153,37 +166,69 @@ class ProductsTest extends TestCase
 //         $response->assertSeeInOrder([$product1->name, $product2->name]);
 //     }
 
+    /**
+     * Here we test the view, if it has a button displayed.
+     */
+    public function test_admin_can_see_products_create_button()
+    {
+        $response = $this->actingAs($this->admin)->get('/products');
+
+        $response->assertOk();//Assert that the response has a 200 HTTP status code:
+
+        /**
+         * 'Add new product' is the text on the button.
+         */
+        $response->assertSee('Add new product');
+    }
+
+    /**
+     * Here we test the view, if it has a button displayed.
+     */
+    public function test_non_admin_cannot_see_products_create_button()
+    {
+        $response = $this->actingAs($this->user)->get('/products');
+
+        $response->assertOk();//Assert that the response has a 200 HTTP status code:
+
+        /**
+         * 'Add new product' is the text on the button.
+         */
+        $response->assertDontSee('Add new product');
+    }
+
+    /**
+     * Here we test if the admin or the user can access a page (route).
+     */
+    public function test_admin_can_access_product_create_page()
+    {
+        $response = $this->actingAs($this->admin)->get('/products/create');
+
+        $response->assertOk();//Assert that the response has a 200 HTTP status code:
+    }
+
+    /**
+     * Here we test if the admin or the user can access a page (route).
+     */
+    public function test_non_admin_cannot_access_product_create_page()
+    {
+        $response = $this->actingAs($this->user)->get('/products/create');
+
+        /**
+         * https://laravel.com/docs/10.x/http-tests#assert-forbidden
+         * Assert that the response has a forbidden (403) HTTP status code
+         *
+         * The is_admin middleware is created so, that is will give this response to all non-admin
+         * users: abort(403);
+         */
+        $response->assertForbidden();
+    }
 
 
-//     public function test_admin_can_see_products_create_button()
-//     {
-//         $response = $this->actingAs($this->admin)->get('/products');
 
-//         $response->assertOk();
-//         $response->assertSee('Add new product');
-//     }
 
-//     public function test_non_admin_cannot_see_products_create_button()
-//     {
-//         $response = $this->actingAs($this->user)->get('/products');
 
-//         $response->assertOk();
-//         $response->assertDontSee('Add new product');
-//     }
 
-//     public function test_admin_can_access_product_create_page()
-//     {
-//         $response = $this->actingAs($this->admin)->get('/products/create');
 
-//         $response->assertOk();
-//     }
-
-//     public function test_non_admin_cannot_access_product_create_page()
-//     {
-//         $response = $this->actingAs($this->user)->get('/products/create');
-
-//         $response->assertForbidden();
-//     }
 
 //     public function test_create_product_successful()
 //     {
