@@ -276,35 +276,66 @@ class ProductsTest extends TestCase
         $this->assertEquals($product['price'] * 100, $lastProduct->price);
     }
 
-//     public function test_product_edit_contains_correct_values()
-//     {
-//         $product = Product::factory()->create();
-//         $this->assertDatabaseHas('products', [
-//             'name' => $product->name,
-//             'price' => $product->price
-//         ]);
-//         $this->assertModelExists($product);
 
-//         $response = $this->actingAs($this->admin)->get('products/' . $product->id . '/edit');
+    /**
+     * This is only for checking if the right values were displayed in the edit form. This test
+     * does not test if the editing is actaully working.
+     */
+    public function test_product_edit_contains_correct_values()
+    {
+        //Create a product
+        $product = Product::factory()->create();
 
-//         $response->assertOk();
-//         $response->assertSee('value="' . $product->name . '"', false);
-//         $response->assertSee('value="' . $product->price . '"', false);
-//         $response->assertViewHas('product', $product);
-//     }
+        //Check if the product is in db
+        $this->assertDatabaseHas('products', [
+            'name' => $product->name,
+            'price' => $product->price
+        ]);
 
-//     public function test_product_update_validation_error_redirects_back_to_form()
-//     {
-//         $product = Product::factory()->create();
+        /**
+         * Assert that a given model exists in the database:
+         * https://laravel.com/docs/10.x/database-testing#assert-model-exists
+         */
+        $this->assertModelExists($product);
 
-//         $response = $this->actingAs($this->admin)->put('products/' . $product->id, [
-//             'name' => '',
-//             'price' => ''
-//         ]);
+        /**
+         * Opening the edit page, with the newly created product, that we will edit.
+         */
+        $response = $this->actingAs($this->admin)->get('products/' . $product->id . '/edit');
 
-//         $response->assertStatus(302);
-//         $response->assertInvalid(['name', 'price']);
-//     }
+        //Checking if response has 200 status
+        $response->assertOk();
+
+
+        /**
+         * This string below that we create should be in the html.
+         * https://laravel.com/docs/10.x/http-tests#assert-see
+         * false = do not do escaping on the ' " ' thingies in the string.
+         */
+        $response->assertSee('value="' . $product->name . '"', false);
+        $response->assertSee('value="' . $product->price . '"', false);
+
+        /**
+         * This is a bit shorter way, that with the assertSee() above.
+         * When opening the /edit page, the controller does this:
+         * return view('products.edit', compact('product'));
+         * Meaning it send a $product under the key 'product'. This is exactly what we check here.
+         */
+        $response->assertViewHas('product', $product);
+    }
+
+    public function test_product_update_validation_error_redirects_back_to_form()
+    {
+        $product = Product::factory()->create();
+
+        $response = $this->actingAs($this->admin)->put('products/' . $product->id, [
+            'name' => '',
+            'price' => ''
+        ]);
+
+        $response->assertStatus(302);
+        $response->assertInvalid(['name', 'price']);
+    }
 
 //     public function test_product_delete_successful()
 //     {

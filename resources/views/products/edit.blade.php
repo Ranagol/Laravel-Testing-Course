@@ -10,30 +10,45 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="overflow-hidden overflow-x-auto p-6 bg-white border-b border-gray-200">
                     <div class="min-w-full align-middle">
-                        <form method="POST" action="{{ route('products.update', $product) }}">
-                            @csrf
-                            @method('PUT')
+<form method="POST" action="{{ route('products.update', $product) }}">
+    @csrf
+    @method('PUT')
 
-                            <!-- Name -->
-                            <div>
-                                <x-label for="name" :value="__('Name')" />
+    <!-- Name -->
+    <div>
+        <x-label for="name" :value="__('Name')" />
 
-                                <x-input id="name" class="block mt-1 w-full" type="text" name="name" :value="$product->name" required autofocus />
-                            </div>
+        <x-input
+            id="name"
+            class="block mt-1 w-full"
+            type="text"
+            name="name"
+            :value="$product->name"
+            required
+            autofocus
+        />
+    </div>
 
-                            <!-- Name -->
-                            <div class="mt-4">
-                                <x-label for="price" :value="__('Price')" />
+    <!-- Price -->
+    <div class="mt-4">
+        <x-label for="price" :value="__('Price')" />
 
-                                <x-input id="price" class="block mt-1 w-full" type="text" name="price" :value="$product->price" required />
-                            </div>
+        <x-input
+            id="price"
+            class="block mt-1 w-full"
+            type="text"
+            name="price"
+            :value="$product->price"
+            required
+        />
+    </div>
 
-                            <div class="flex items-center mt-4">
-                                <x-button>
-                                    {{ __('Save') }}
-                                </x-button>
-                            </div>
-                        </form>
+    <div class="flex items-center mt-4">
+        <x-button>
+            {{ __('Save') }}
+        </x-button>
+    </div>
+</form>
 
                     </div>
                 </div>
