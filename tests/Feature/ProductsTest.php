@@ -181,30 +181,30 @@ class ProductsTest extends TestCase
     //     $response->assertSee('Add new product');
     // }
 
-    // /**
-    //  * Here we test the view, if it has a button displayed.
-    //  */
-    // public function test_non_admin_cannot_see_products_create_button()
-    // {
-    //     $response = $this->actingAs($this->user)->get('/products');
+    /**
+     * Here we test the view, if it has a button displayed.
+     */
+    public function test_non_admin_cannot_see_products_create_button()
+    {
+        $response = $this->actingAs($this->user)->get('/products');
 
-    //     $response->assertOk();//Assert that the response has a 200 HTTP status code:
+        $response->assertOk();//Assert that the response has a 200 HTTP status code:
 
-    //     /**
-    //      * 'Add new product' is the text on the button.
-    //      */
-    //     $response->assertDontSee('Add new product');
-    // }
+        /**
+         * 'Add new product' is the text on the button.
+         */
+        $response->assertDontSee('Add new product');
+    }
 
-    // /**
-    //  * Here we test if the admin or the user can access a page (route).
-    //  */
-    // public function test_admin_can_access_product_create_page()
-    // {
-    //     $response = $this->actingAs($this->admin)->get('/products/create');
+    /**
+     * Here we test if the admin or the user can access a page (route).
+     */
+    public function test_admin_can_access_product_create_page()
+    {
+        $response = $this->actingAs($this->admin)->get('/products/create');
 
-    //     $response->assertOk();//Assert that the response has a 200 HTTP status code:
-    // }
+        $response->assertOk();//Assert that the response has a 200 HTTP status code:
+    }
 
     // /**
     //  * Here we test if the admin or the user can access a page (route).
