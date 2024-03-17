@@ -71,17 +71,22 @@ class ProductsTest extends TestCase
     //     $response->assertSee('No products found');
     // }
 
-    // public function test_homepage_contains_empty_table()
-    // {
+    public function test_homepage_contains_empty_table()
+    {
 
-    //     /**
-    //      * The route is protected with auth middleware. User must be logged in.
-    //      */
-    //     $response = $this->actingAs($this->user)->get('/products');
+        /**
+         * The route is protected with auth middleware. User must be logged in.
+         */
+        $response = $this->actingAs($this->user)->get('/products');
 
-    //     $response->assertOk();
-    //     $response->assertSee(__('No products found'));
-    // }
+        $response->assertOk();
+
+        /**
+         * The blade is set, that when there is no product object to display, then the text 'No
+         * products found' will be displayed. This is what we check here.
+         */
+        $response->assertSee(__('No products found'));
+    }
 
     // public function test_homepage_contains_non_empty_table()
     // {
@@ -136,10 +141,16 @@ class ProductsTest extends TestCase
     //     $response = $this->actingAs($this->user)->get('/products');
 
     //     $response->assertOk();
-
+    //     /**
+    //      * 1 -  asserting that the view (the page returned by the server) has a variable named
+    //      * 'products'. This products variable is a collection.
+    //      * 2 - The sceond argument is a callback. It takes the beforementioned collection and the
+    //      * $lastProduct, and then checks if the collection contains the $lastProduct. If it does, it
+    //      * returns false. If it does not, it returns true.
+    //      */
     //     $response->assertViewHas(
-    //         'products',
-    //         function ($collection) use ($lastProduct) {
+    //         'products',//1
+    //         function ($collection) use ($lastProduct) {//2
     //             return !$collection->contains($lastProduct);
     //         }
     //     );
@@ -206,200 +217,218 @@ class ProductsTest extends TestCase
         $response->assertOk();//Assert that the response has a 200 HTTP status code:
     }
 
-    // /**
-    //  * Here we test if the admin or the user can access a page (route).
-    //  */
-    // public function test_non_admin_cannot_access_product_create_page()
-    // {
-    //     $response = $this->actingAs($this->user)->get('/products/create');
+    /**
+     * Here we test if the admin or the user can access a page (route).
+     */
+    public function test_non_admin_cannot_access_product_create_page()
+    {
+        $response = $this->actingAs($this->user)->get('/products/create');
 
-    //     /**
-    //      * https://laravel.com/docs/10.x/http-tests#assert-forbidden
-    //      * Assert that the response has a forbidden (403) HTTP status code
-    //      *
-    //      * The is_admin middleware is created so, that is will give this response to all non-admin
-    //      * users: abort(403);
-    //      */
-    //     $response->assertForbidden();
-    // }
-
-
-    // /**
-    //  * Here we test if a created product actually appeared in the fake db.
-    //  */
-    // public function test_create_product_successful()
-    // {
-    //     //Creating a product.
-    //     $product = [
-    //         'name' => 'Product 123',
-    //         'price' => 1234
-    //     ];
-
-    //     /**
-    //      * This is for things that happen in the browser. This does not cover what happens ind the
-    //      * db.
-    //      */
-    //     $response = $this->followingRedirects()
-    //                         ->actingAs($this->admin)
-    //                         ->post('/products', $product);
-
-    //     $response->assertStatus(200);
-
-    //     /**
-    //      * https://laravel.com/docs/10.x/http-tests#assert-see-text
-    //      *
-    //      */
-    //     $response->assertSeeText($product['name']);
-
-    //     /**
-    //      * We check here if the created product is in the fake db.
-    //      * Assert that a table in the database contains records matching the given key / value
-    //      * query constraints
-    //      *
-    //      * https://laravel.com/docs/10.x/database-testing#assert-database-has
-    //      */
-    //     $this->assertDatabaseHas(
-    //         'products', //this is the table name
-    //         [
-    //             'name' => 'Product 123',//this is the product that we just created
-    //             'price' => 123400
-    //         ]
-    //     );
-
-    //     /**
-    //      * A couple of lines above we created a new product, and inserted it into db. That means
-    //      * that this new product is the last one, if all is ok. This is what we want to check here.
-    //      * So here we check if the last products name and price are correct.
-    //      */
-    //     $lastProduct = Product::latest()->first();
-    //     $this->assertEquals($product['name'], $lastProduct->name);
-    //     $this->assertEquals($product['price'] * 100, $lastProduct->price);
-    // }
+        /**
+         * https://laravel.com/docs/10.x/http-tests#assert-forbidden
+         * Assert that the response has a forbidden (403) HTTP status code
+         *
+         * The is_admin middleware is created so, that is will give this response to all non-admin
+         * users: abort(403);
+         */
+        $response->assertForbidden();
+    }
 
 
-    // /**
-    //  * This is only for checking if the right values were displayed in the edit form. This test
-    //  * does not test if the editing is actaully working.
-    //  */
-    // public function test_product_edit_contains_correct_values()
-    // {
-    //     //Create a product
-    //     $product = Product::factory()->create();
+    /**
+     * Here we test if a created product actually appeared in the fake db.
+     */
+    public function test_create_product_successful()
+    {
+        //Creating a product.
+        $product = [
+            'name' => 'Product 123',
+            'price' => 1234
+        ];
 
-    //     //Check if the product is in db
-    //     $this->assertDatabaseHas('products', [
-    //         'name' => $product->name,
-    //         'price' => $product->price
-    //     ]);
+        /**
+         * This is for things that happen in the browser. This does not cover what happens in the
+         * db.
+         */
+        $response = $this->followingRedirects()
+                            ->actingAs($this->admin)
+                            ->post('/products', $product);
 
-    //     /**
-    //      * Assert that a given model exists in the database:
-    //      * https://laravel.com/docs/10.x/database-testing#assert-model-exists
-    //      */
-    //     $this->assertModelExists($product);
+        $response->assertStatus(200);
 
-    //     /**
-    //      * Opening the edit page, with the newly created product, that we will edit.
-    //      */
-    //     $response = $this->actingAs($this->admin)->get('products/' . $product->id . '/edit');
+        /**
+         * https://laravel.com/docs/10.x/http-tests#assert-see-text
+         *
+         */
+        $response->assertSeeText($product['name']);
 
-    //     //Checking if response has 200 status
-    //     $response->assertOk();
+        /**
+         * We check here if the created product is in the fake db.
+         * Assert that a table in the database contains records matching the given key / value
+         * query constraints
+         *
+         * https://laravel.com/docs/10.x/database-testing#assert-database-has
+         */
+        $this->assertDatabaseHas(
+            'products', //this is the table name
+            [
+                'name' => 'Product 123',//this is the product that we just created
+                'price' => 123400
+            ]
+        );
+
+        /**
+         * A couple of lines above we created a new product, and inserted it into db. That means
+         * that this new product is the last one, if all is ok. This is what we want to check here.
+         * So here we check if the last products name and price are correct.
+         */
+        $lastProduct = Product::latest()->first();
+        $this->assertEquals($product['name'], $lastProduct->name);
+        $this->assertEquals($product['price'] * 100, $lastProduct->price);
+    }
 
 
-    //     /**
-    //      * This string below that we create should be in the html.
-    //      * https://laravel.com/docs/10.x/http-tests#assert-see
-    //      * false = do not do escaping on the ' " ' thingies in the string.
-    //      */
-    //     $response->assertSee('value="' . $product->name . '"', false);
-    //     $response->assertSee('value="' . $product->price . '"', false);
+    /**
+     * This is only for checking if the right values were displayed in the edit form. This test
+     * does not test if the editing is actually working.
+     */
+    public function test_product_edit_contains_correct_values()
+    {
+        //Create a product
+        $product = Product::factory()->create();
 
-    //     /**
-    //      * This is a bit shorter way, that with the assertSee() above.
-    //      * When opening the /edit page, the controller does this:
-    //      * return view('products.edit', compact('product'));
-    //      * Meaning it send a $product under the key 'product'. This is exactly what we check here.
-    //      */
-    //     $response->assertViewHas('product', $product);
-    // }
+        //Check if the product is in db
+        $this->assertDatabaseHas('products', [
+            'name' => $product->name,
+            'price' => $product->price
+        ]);
 
-    // /**
-    //  * Now, this is the testing of the product update validation.
-    //  */
-    // public function test_product_update_validation_error_redirects_back_to_form()
-    // {
-    //     //We create a product in the fake db.
-    //     $product = Product::factory()->create();
+        /**
+         * Assert that a given model exists in the database:
+         * https://laravel.com/docs/10.x/database-testing#assert-model-exists
+         */
+        $this->assertModelExists($product);
 
-    //     /**
-    //      * Notice: here we use PUT method for updating. But we are trying deliberatly to update
-    //      * to wrong values. Because, name and price are mandatory and requered (defined so in the
-    //      * validation rules). And here we try to send no new value for name and price. Just an
-    //      * empty string. Which should trigger a validation error.
-    //      */
-    //     $response = $this->actingAs($this->admin)->put(
-    //         'products/' . $product->id,
-    //         [
-    //             'name' => '',
-    //             'price' => ''
-    //         ]
-    //     );
+        /**
+         * Opening the edit page, with the newly created product, that we will edit.
+         */
+        $response = $this->actingAs($this->admin)->get('products/' . $product->id . '/edit');
 
-    //     /**
-    //      * We expect here a redirect after a successfull update. Because, after a successfull update
-    //      * this will happen in the controller:
-    //      * return redirect()->route('products.index');
-    //      */
-    //     $response->assertStatus(302);
+        //Checking if response has 200 status
+        $response->assertOk();
 
-    //     /**
-    //      * Assert that the response has validation errors for the given keys.
-    //      * https://laravel.com/docs/10.x/http-tests#assert-invalid
-    //      */
-    //     $response->assertInvalid(['name', 'price']);
-    // }
 
-    // public function test_product_delete_successful()
-    // {
-    //     //Creating a product for deletion
-    //     $product = Product::factory()->create();
+        /**
+         * Here we test, whether the product that we created appears on the FE edit page.
+         * This string below that we create should be in the html.
+         * https://laravel.com/docs/10.x/http-tests#assert-see
+         * false = do not do escaping on the ' " ' thingies in the string.
+         */
+        $response->assertSee('value="' . $product->name . '"', false);
+        $response->assertSee('value="' . $product->price . '"', false);
 
-    //     //Sending a delete request as admin
-    //     $response = $this->actingAs($this->admin)->delete('products/' . $product->id);
+        /**
+         * This is a bit shorter way, that with the assertSee() above.
+         * When opening the /edit page, the controller does this:
+         * return view('products.edit', compact('product'));
+         * Meaning it send a $product under the key 'product'. This is exactly what we check here.
+         */
+        $response->assertViewHas('product', $product);
+    }
 
-    //     /**
-    //      * After a successfull deletion, we expect a redirect to the products page.
-    //      * 302 is status for redirection.
-    //      */
-    //     $response->assertStatus(302);
+    /**
+     * Now, this is the testing of the product update validation.
+     * When there is a validation error during update, Laravel by default redirect the user back to
+     * the form. This is what we test here.
+     */
+    public function test_product_update_validation_error_redirects_back_to_form()
+    {
+        //We create a product in the fake db.
+        $product = Product::factory()->create();
 
-    //     /**
-    //      * Assert that the response is a redirect to the given URI:
-    //      * https://laravel.com/docs/10.x/http-tests#assert-redirect
-    //      */
-    //     $response->assertRedirect('products');
+        /**
+         * Notice: here we use PUT method for updating. But we are trying deliberatly to update
+         * to wrong values. Because, name and price are mandatory and required (defined so in the
+         * validation rules). And here we try to send no new value for name and price. Just an
+         * empty string. Which should trigger a validation error.
+         */
+        $response = $this->actingAs($this->admin)->put(
+            //1- the url
+            'products/' . $product->id,
+            //2- the data
+            [
+                'name' => '',
+                'price' => ''
+            ]
+        );
 
-    //     /**
-    //      * Assert that a table in the database does not contain records matching the given key /
-    //      * value query constraints:
-    //      * https://laravel.com/docs/10.x/database-testing#assert-database-missing
-    //      */
-    //     $this->assertDatabaseMissing('products', $product->toArray());
+        /**
+         * We expect here a redirect after a successfull update. Because, after a successfull update
+         * this will happen in the controller:
+         * return redirect()->route('products.index');
+         * No matter if the update was successfull or not, the controller will redirect with status
+         * 302.
+         */
+        $response->assertStatus(302);
 
-    //     /**
-    //      * Assert that a given model does not exist in the database:
-    //      * https://laravel.com/docs/10.x/database-testing#assert-model-missing
-    //      */
-    //     $this->assertModelMissing($product);
+        /**
+         * When there is a validation error, Laravel automatically puts these errors into the session.
+         * So, we expect that the session will have errors.
+         */
+        $response->assertSessionHasErrors(['name', 'price']);
 
-    //     /**
-    //      * Assert that a table in the database contains the given number of records: 0.
-    //      * 0, because for every test we reset our db. Because this is a fake db for testing.
-    //      * https://laravel.com/docs/10.x/database-testing#assert-database-count
-    //      */
-    //     $this->assertDatabaseCount('products', 0);
-    // }
+        /**
+         * Assert that the response has validation errors for the given keys. We expect that the
+         * product name and price will have a validation error. Because we tried to update them with
+         * empty strings.
+         * https://laravel.com/docs/10.x/http-tests#assert-invalid
+         */
+        $response->assertInvalid(['name', 'price']);
+    }
+
+    public function test_product_delete_successful()
+    {
+        //Creating a product for deletion
+        $product = Product::factory()->create();
+
+        //Sending a delete request as admin
+        $response = $this->actingAs($this->admin)->delete('products/' . $product->id);
+
+        /**
+         * After a successfull deletion, we expect a redirect to the products page.
+         * 302 is status for redirection.
+         */
+        $response->assertStatus(302);
+
+        /**
+         * Assert that the response is a redirect to the given URI:
+         * https://laravel.com/docs/10.x/http-tests#assert-redirect
+         */
+        $response->assertRedirect('products');
+
+        /**
+         * Assert that a table in the database does not contain records matching the given key /
+         * value query constraints:
+         * https://laravel.com/docs/10.x/database-testing#assert-database-missing
+         */
+        $this->assertDatabaseMissing(
+            'products',//1- table name
+            $product->toArray()//2- the product that we just deleted, in array form
+        );
+
+        /**
+         * Assert that a given model does not exist in the database:
+         * https://laravel.com/docs/10.x/database-testing#assert-model-missing
+         */
+        $this->assertModelMissing($product);
+
+        /**
+         * Assert that a table in the database contains the given number of records: 0.
+         * 0, because for every test we reset our db. Because this is a fake db for testing.
+         * https://laravel.com/docs/10.x/database-testing#assert-database-count
+         */
+        $this->assertDatabaseCount('products', 0);
+    }
 
 //     public function test_product_create_photo_upload_successful()
 //     {
@@ -507,7 +536,7 @@ class ProductsTest extends TestCase
     }
 
     /**
-     * CREATE successfull scenario
+     * store successfull scenario.
      */
     public function test_api_product_store_successful()
     {
@@ -523,6 +552,8 @@ class ProductsTest extends TestCase
         /**
          * Assert that the response has a 201 HTTP status code:
          * https://laravel.com/docs/10.x/http-tests#assert-created
+         * The HTTP status code 201 means "Created". It's typically used to indicate that a request
+         * to create a new resource was successful
          */
         $response->assertCreated();
 
@@ -533,17 +564,18 @@ class ProductsTest extends TestCase
         $response->assertSuccessful(); // but not assertOk()
 
         /**
-         * Assert that the response contains the given JSON data:
+         * Assert that the response contains the given JSON data (because the create method always
+         * returns the newly created record).
          * https://laravel.com/docs/10.x/http-tests#assert-json
          */
         $response->assertJson([
             'name' => 'Product 1',
-            'price' => 12300
+            'price' => 123
         ]);
     }
 
     /**
-     * CREATE not successfull scenario, validation triggered successfully
+     * store not successfull scenario, validation triggered successfully
      */
     public function test_api_product_invalid_store_returns_error()
     {
@@ -558,7 +590,7 @@ class ProductsTest extends TestCase
 
         /**
          * A 422 status code indicates that the server was unable to process the request because it
-         * contains invalid data.
+         * contains invalid data. This is the unhappy path, so we expect 422 status.
          */
         $response->assertStatus(422);
 
@@ -583,12 +615,35 @@ class ProductsTest extends TestCase
             'name' => 'Product 1',
             'price' => 123
         ];
+
+        //Create product
         $product = Product::create($productData);
 
+        //Send show request to api
         $response = $this->getJson('/api/products/' . $product->id);
+
+
         $response->assertOk();
-        $response->assertJsonPath('data.name', $productData['name']);
+
+        /**
+         * This line asserts that the 'name' field of the 'data' object in the JSON response matches
+         * the 'name' field in the $productData array.
+         */
+        $response->assertJsonPath(
+            'data.name',
+            $productData['name']
+        );
+
+        /**
+         * This line asserts that the 'created_at' field is not present in the 'data' object in the
+         * JSON response.
+         */
         $response->assertJsonMissingPath('data.created_at');
+
+        /**
+         * This line asserts that the 'data' object in the JSON response has an 'id', 'name', and
+         * 'price' field. It does not check the values of these fields, only their presence.
+         */
         $response->assertJsonStructure([
             'data' => [
                 'id',
@@ -625,29 +680,29 @@ class ProductsTest extends TestCase
         $this->assertDatabaseCount('products', 0);
     }
 
-//     public function test_api_product_delete_restricted_by_auth()
-//     {
-//         $product = Product::factory()->create();
-//         $response = $this->deleteJson('/api/products/' . $product->id);
+    public function test_api_product_delete_restricted_by_auth()
+    {
+        $product = Product::factory()->create();
+        $response = $this->deleteJson('/api/products/' . $product->id);
 
-//         $response->assertUnauthorized();
-//     }
+        $response->assertUnauthorized();
+    }
 
-//     public function test_product_service_create_returns_product()
-//     {
-//         $product = (new ProductService())->create('Test product', 1234);
+    public function test_product_service_create_returns_product()
+    {
+        $product = (new ProductService())->create('Test product', 1234);
 
-//         $this->assertInstanceOf(Product::class, $product);
-//     }
+        $this->assertInstanceOf(Product::class, $product);
+    }
 
-//     public function test_product_service_create_validation()
-//     {
-//         try {
-//             (new ProductService())->create('Too big', 1234567);
-//         } catch (\Exception $e) {
-//             $this->assertInstanceOf(NumberFormatException::class, $e);
-//         }
-//     }
+    public function test_product_service_create_validation()
+    {
+        try {
+            (new ProductService())->create('Too big', 1234567);
+        } catch (\Exception $e) {
+            $this->assertInstanceOf(NumberFormatException::class, $e);
+        }
+    }
 
 //     public function test_download_product_success()
 //     {

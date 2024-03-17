@@ -17,21 +17,29 @@ use App\Http\Controllers\ProductController;
 Route::redirect('/', 'login');
 Route::get('download', [ProductController::class, 'download']);
 
-// Route::middleware('auth')->group(function() {
-//     Route::get('products', [ProductController::class, 'index'])->name('products.index');
+/**
+ * 1 level middleware: here we check if the user is logged in. Only authenticated users can access
+ * the /products page.
+ */
+Route::middleware('auth')->group(function() {
+    Route::get('products', [ProductController::class, 'index'])->name('products.index');
 
-//     Route::middleware('is_admin')->group(function() {
-//         Route::get('products/create', [ProductController::class, 'create'])
-//             ->name('products.create');
-//         Route::post('products', [ProductController::class, 'store'])
-//             ->name('products.store');
-//         Route::get('products/{product}/edit', [ProductController::class, 'edit'])
-//             ->name('products.edit');
-//         Route::put('products/{product}', [ProductController::class, 'update'])
-//             ->name('products.update');
-//         Route::delete('products/{product}', [ProductController::class, 'destroy'])
-//             ->name('products.destroy');
-//     });
-// });
+    /**
+     * 2 level middleware: here we check if the user is an admin. Only admins can access the /products/create
+     * page.
+     */
+    Route::middleware('is_admin')->group(function() {
+        Route::get('products/create', [ProductController::class, 'create'])
+            ->name('products.create');
+        Route::post('products', [ProductController::class, 'store'])
+            ->name('products.store');
+        Route::get('products/{product}/edit', [ProductController::class, 'edit'])
+            ->name('products.edit');
+        Route::put('products/{product}', [ProductController::class, 'update'])
+            ->name('products.update');
+        Route::delete('products/{product}', [ProductController::class, 'destroy'])
+            ->name('products.destroy');
+    });
+});
 
 require __DIR__.'/auth.php';
